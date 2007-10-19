@@ -164,9 +164,7 @@ int ps_packet_fakedma_cut(ps_packet_t *packet, size_t size);
 int ps_packet_fakedma_commitall(ps_packet_t *packet);
 int ps_packet_fakedma_freeall(ps_packet_t *packet);
 
-#ifdef __PS_STATS
 unsigned long ps_buffer_utime(ps_buffer_t *buffer);
-#endif
 
 int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr)
 {
@@ -1022,9 +1020,10 @@ int ps_bufferattr_setshmmode(ps_bufferattr_t *attr, int mode)
 #endif
 }
 
-#ifdef __PS_STATS
+
 unsigned long ps_buffer_utime(ps_buffer_t *buffer)
 {
+#ifdef __PS_STATS
 	__PS_BUFFER_VARS(buffer)
 	struct timeval tv;
 
@@ -1039,8 +1038,11 @@ unsigned long ps_buffer_utime(ps_buffer_t *buffer)
 	}
 
 	return (unsigned long) tv.tv_sec * 1000000 + (unsigned long) tv.tv_usec;
-}
+#else
+	return 0;
 #endif
+}
+
 
 int ps_stats_text(ps_stats_t *stats, FILE *stream)
 {
