@@ -14,13 +14,16 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include <errno.h>
 #include <pthread.h>
 #include <semaphore.h>
+
+#ifdef __PS_SHM
+#include <sys/time.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/time.h>
-#include <stdio.h>
+#endif
 
 /**
  * \addtogroup packetstream
@@ -97,8 +100,10 @@ struct ps_state_s {
 	sem_t read_packets;
 	/** number of produced packets */
 	sem_t written_packets;
+#ifndef WIN32
 	/** absolute time (since EPOCH) when this buffer was created */
 	struct timeval create_time;
+#endif
 };
 
 /**
@@ -159,7 +164,9 @@ int ps_packet_fakedma_cut(ps_packet_t *packet, size_t size);
 int ps_packet_fakedma_commitall(ps_packet_t *packet);
 int ps_packet_fakedma_freeall(ps_packet_t *packet);
 
+#ifdef __PS_STATS
 unsigned long ps_buffer_utime(ps_buffer_t *buffer);
+#endif
 
 int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr)
 {
@@ -180,6 +187,7 @@ int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr)
 	pthread_mutexattr_t mutexattr;
 	pthread_mutexattr_init(&mutexattr);
 
+#ifdef __PS_SHM
 	if (flags & PS_BUFFER_PSHARED) {
 		shared = 1;
 		pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED);
@@ -204,11 +212,14 @@ int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr)
 		if (flags & PS_BUFFER_STATS)
 			buffer->stats = (ps_stats_t *) &((unsigned char *) buffer->state)[sizeof(struct ps_state_s)];
 	} else {
+#endif
 		buffer->state = malloc(sizeof(struct ps_state_s));
 		buffer->buffer = malloc(attr->size);
 		if (flags & PS_BUFFER_STATS)
 			buffer->stats = (ps_stats_t *) malloc(sizeof(ps_stats_t));
+#ifdef __PS_SHM
 	}
+#endif
 
 	if ((buffer->buffer == NULL) | (buffer->state == NULL))
 		return ENOMEM;
@@ -968,6 +979,16 @@ int ps_bufferattr_setflags(ps_bufferattr_t *attr, ps_flags_t flags)
 	if ((flags & PS_BUFFER_READY) | (flags & PS_BUFFER_CANCELLED))
 		return EINVAL;
 
+#ifndef __PS_SHM
+	if (flags & PS_BUFFER_PSHARED)
+		return ENOTSUP;
+#endif
+
+#ifndef __PS_STATS
+	if (flags & PS_BUFFFER_STATS)
+		return ENOTSUP;
+#endif
+
 	attr->flags = flags;
 
 	return 0;
@@ -975,24 +996,33 @@ int ps_bufferattr_setflags(ps_bufferattr_t *attr, ps_flags_t flags)
 
 int ps_bufferattr_setshmid(ps_bufferattr_t *attr, int id)
 {
+#ifdef __PS_SHM
 	if (attr == NULL)
 		return EINVAL;
 
 	attr->shmid = id;
 
 	return 0;
+#else
+	return ENOTSUP;
+#endif
 }
 
 int ps_bufferattr_setshmmode(ps_bufferattr_t *attr, int mode)
 {
+#ifdef __PS_SHM
 	if (attr == NULL)
 		return EINVAL;
 
 	attr->shmmode = mode;
 
 	return 0;
+#else
+	return ENOTSUP;
+#endif
 }
 
+#ifdef __PS_STATS
 unsigned long ps_buffer_utime(ps_buffer_t *buffer)
 {
 	__PS_BUFFER_VARS(buffer)
@@ -1010,6 +1040,7 @@ unsigned long ps_buffer_utime(ps_buffer_t *buffer)
 
 	return (unsigned long) tv.tv_sec * 1000000 + (unsigned long) tv.tv_usec;
 }
+#endif
 
 int ps_stats_text(ps_stats_t *stats, FILE *stream)
 {

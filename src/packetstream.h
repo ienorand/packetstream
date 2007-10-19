@@ -37,9 +37,24 @@
 #ifndef _PACKETSTREAM_H
 #define _PACKETSTREAM_H
 
+#ifdef WIN32
+# define EXPORT __declspec (dllexport)
+#endif
+
+#ifndef DLEXPORT
+# define EXPORT
+#endif
+
 #include <stddef.h>
-#include <sys/ipc.h>
 #include <stdio.h>
+
+#ifdef WIN32
+# define IPC_PRIVATE 0
+#else
+# include <sys/ipc.h>
+# define __PS_SHM
+# define __PS_STATS
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -223,41 +238,41 @@ typedef struct {
  * \param attr buffer attribute object to initialize
  * \return 0 on success or EINVAL if attr is NULL
  */
-extern int ps_bufferattr_init(ps_bufferattr_t *attr);
+EXPORT extern int ps_bufferattr_init(ps_bufferattr_t *attr);
 /**
  * \brief destroy buffer attribute object
  * \param attr buffer attribute object to destroy
  * \return 0 on success or EINVAL if attr is NULL
  */
-extern int ps_bufferattr_destroy(ps_bufferattr_t *attr);
+EXPORT extern int ps_bufferattr_destroy(ps_bufferattr_t *attr);
 /**
  * \brief set buffer size
  * \param attr buffer attribute object
  * \param size buffer size
  * \return 0 on success or EINVAL if attr is NULL or size is too small
  */
-extern int ps_bufferattr_setsize(ps_bufferattr_t *attr, size_t size);
+EXPORT extern int ps_bufferattr_setsize(ps_bufferattr_t *attr, size_t size);
 /**
  * \brief set buffer flags
  * \param attr buffer attribute object
  * \param flags valid flags are PS_BUFFER_PSHARED and PS_BUFFER_STATS
  * \return 0 on success or EINVAL if attr is NULL or flags are not valid
  */
-extern int ps_bufferattr_setflags(ps_bufferattr_t *attr, ps_flags_t flags);
+EXPORT extern int ps_bufferattr_setflags(ps_bufferattr_t *attr, ps_flags_t flags);
 /**
  * \brief set buffer shared memory id
  * \param attr buffer attribute object
  * \param id shared memory id or PS_SHM_CREATE to create a new
  * \return 0 on success or EINVAL if attr is NULL
  */
-extern int ps_bufferattr_setshmid(ps_bufferattr_t *attr, int id);
+EXPORT extern int ps_bufferattr_setshmid(ps_bufferattr_t *attr, int id);
 /**
  * \brief set buffer shared memory mode
  * \param attr buffer attribute object
  * \param mode octal permission mode
  * \return 0 on success or EINVAL if attr is NULL or mode is not valid
  */
-extern int ps_bufferattr_setshmmode(ps_bufferattr_t *attr, int mode);
+EXPORT extern int ps_bufferattr_setshmmode(ps_bufferattr_t *attr, int mode);
 
 /**  \} */
 
@@ -272,13 +287,13 @@ extern int ps_bufferattr_setshmmode(ps_bufferattr_t *attr, int mode);
  * \param attr initalized buffer attribute object
  * \return 0 on success otherwise an error code
  */
-extern int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr);
+EXPORT extern int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr);
 /**
  * \brief destory buffer
  * \param buffer buffer to destroy
  * \return 0 on success otherwise an error code
  */
-extern int ps_buffer_destroy(ps_buffer_t *buffer);
+EXPORT extern int ps_buffer_destroy(ps_buffer_t *buffer);
 /**
  * \brief cancel buffer
  *
@@ -289,7 +304,7 @@ extern int ps_buffer_destroy(ps_buffer_t *buffer);
  * \param buffer buffer to cancel
  * \return 0 on success otherwise an error code
  */
-extern int ps_buffer_cancel(ps_buffer_t *buffer);
+EXPORT extern int ps_buffer_cancel(ps_buffer_t *buffer);
 /**
  * \brief acquire a copy of buffer statistics
  *
@@ -300,7 +315,7 @@ extern int ps_buffer_cancel(ps_buffer_t *buffer);
  * \param stats returned statisticts
  * \return 0 on success otherwise an error code
  */
-extern int ps_buffer_stats(ps_buffer_t *buffer, ps_stats_t *stats);
+EXPORT extern int ps_buffer_stats(ps_buffer_t *buffer, ps_stats_t *stats);
 /**
  * \brief get buffer shared memory id
  *
@@ -309,7 +324,7 @@ extern int ps_buffer_stats(ps_buffer_t *buffer, ps_stats_t *stats);
  * \param shmid returned shared memory id
  * \return 0 on success otherwise an error code
  */
-extern int ps_buffer_getshmid(ps_buffer_t *buffer, int *shmid);
+EXPORT extern int ps_buffer_getshmid(ps_buffer_t *buffer, int *shmid);
 
 /**  \} */
 
@@ -325,13 +340,13 @@ extern int ps_buffer_getshmid(ps_buffer_t *buffer, int *shmid);
  * \param buffer buffer to bind this packet to
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_init(ps_packet_t *packet, ps_buffer_t *buffer);
+EXPORT extern int ps_packet_init(ps_packet_t *packet, ps_buffer_t *buffer);
 /**
  * \brief destroy packet
  * \param packet packet to destroy
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_destroy(ps_packet_t *packet);
+EXPORT extern int ps_packet_destroy(ps_packet_t *packet);
 /**
  * \brief open packet
  *
@@ -343,13 +358,13 @@ extern int ps_packet_destroy(ps_packet_t *packet);
  * \param flags PS_PACKET_WRITE or PS_PACKET_READ, possibly PS_PACKET_TRY
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_open(ps_packet_t *packet, ps_flags_t flags);
+EXPORT extern int ps_packet_open(ps_packet_t *packet, ps_flags_t flags);
 /**
  * \brief close packet
  * \param packet packet to close
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_close(ps_packet_t *packet);
+EXPORT extern int ps_packet_close(ps_packet_t *packet);
 /**
  * \brief cancel packet
  *
@@ -359,14 +374,14 @@ extern int ps_packet_close(ps_packet_t *packet);
  * \param packet packet to cancel
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_cancel(ps_packet_t *packet);
+EXPORT extern int ps_packet_cancel(ps_packet_t *packet);
 /**
  * \brief tell current read/write position in packet
  * \param packet packet
  * \param pos returned position
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_tell(ps_packet_t *packet, size_t *pos);
+EXPORT extern int ps_packet_tell(ps_packet_t *packet, size_t *pos);
 /**
  * \brief seek to given read/write position
  *
@@ -376,14 +391,14 @@ extern int ps_packet_tell(ps_packet_t *packet, size_t *pos);
  * \param pos position to seek to
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_seek(ps_packet_t *packet, size_t pos);
+EXPORT extern int ps_packet_seek(ps_packet_t *packet, size_t pos);
 /**
  * \brief get packet size
  * \param packet packet
  * \param size returned size
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_getsize(ps_packet_t *packet, size_t *size);
+EXPORT extern int ps_packet_getsize(ps_packet_t *packet, size_t *size);
 /**
  * \brief set packet size
  *
@@ -398,7 +413,7 @@ extern int ps_packet_getsize(ps_packet_t *packet, size_t *size);
  * \param size constant size for packet
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_setsize(ps_packet_t *packet, size_t size);
+EXPORT extern int ps_packet_setsize(ps_packet_t *packet, size_t size);
 /**
  * \brief read data from packet
  *
@@ -409,7 +424,7 @@ extern int ps_packet_setsize(ps_packet_t *packet, size_t size);
  * \param size bytes to read
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_read(ps_packet_t *packet, void *dest, size_t size);
+EXPORT extern int ps_packet_read(ps_packet_t *packet, void *dest, size_t size);
 /**
  * \brief write data to packet
  *
@@ -420,7 +435,7 @@ extern int ps_packet_read(ps_packet_t *packet, void *dest, size_t size);
  * \param size bytes to write
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_write(ps_packet_t *packet, void *src, size_t size);
+EXPORT extern int ps_packet_write(ps_packet_t *packet, void *src, size_t size);
 /**
  * \brief acquire direct memory access to packet
  *
@@ -438,7 +453,7 @@ extern int ps_packet_write(ps_packet_t *packet, void *src, size_t size);
  * \param flags flags, currently only PS_ACCEPT_FAKE_DMA is specified
  * \return 0 on success otherwise an error code
  */
-extern int ps_packet_dma(ps_packet_t *packet, void **mem, size_t size, ps_flags_t flags);
+EXPORT extern int ps_packet_dma(ps_packet_t *packet, void **mem, size_t size, ps_flags_t flags);
 
 /**  \} */
 
@@ -449,12 +464,14 @@ extern int ps_packet_dma(ps_packet_t *packet, void **mem, size_t size, ps_flags_
  * \param stream stream
  * \return 0 on success otherwise an error code
  */
-extern int ps_stats_text(ps_stats_t *stats, FILE *stream);
+EXPORT extern int ps_stats_text(ps_stats_t *stats, FILE *stream);
 
 /**  \} */
 
 #ifdef __cplusplus
 }
 #endif
+
+#undef EXPORT
 
 #endif
