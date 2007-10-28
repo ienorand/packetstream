@@ -29,16 +29,16 @@ struct texec_shared_s {
 struct texec_shared_s *shm_get_shared(int *shmid)
 {
 	struct texec_shared_s *shared;
-	
+
 	if (*shmid == IPC_PRIVATE) {
 		*shmid = shmget(IPC_PRIVATE, sizeof(struct texec_shared_s), IPC_CREAT | IPC_EXCL | 0600);
 		shared = (struct texec_shared_s *) shmat(*shmid, NULL, 0);
-		
+
 		sem_init(&shared->finished, 1, 0);
 		shared->buffer_shmid = PS_SHM_CREATE;
 	} else
 		shared = (struct texec_shared_s *) shmat(*shmid, NULL, 0);
-	
+
 	return shared;
 }
 
@@ -46,13 +46,13 @@ void send_kill(ps_buffer_t *buffer)
 {
 	ps_packet_t packet;
 	const char kill_cmd = 'k';
-	
+
 	ps_packet_init(&packet, buffer);
-	
+
 	ps_packet_open(&packet, PS_PACKET_WRITE);
 	ps_packet_write(&packet, (void *) &kill_cmd, 1);
 	ps_packet_close(&packet);
-	
+
 	ps_packet_destroy(&packet);
 }
 
@@ -60,14 +60,14 @@ void send_command(ps_buffer_t *buffer, char *command)
 {
 	ps_packet_t packet;
 	const char exec_cmd = 'e';
-	
+
 	ps_packet_init(&packet, buffer);
-	
+
 	ps_packet_open(&packet, PS_PACKET_WRITE);
 	ps_packet_write(&packet, (void *) &exec_cmd, 1);
 	ps_packet_write(&packet, command, strlen(command) + 1);
 	ps_packet_close(&packet);
-	
+
 	ps_packet_destroy(&packet);
 }
 
@@ -78,29 +78,29 @@ void *exec_thread(void *addr)
 	ps_packet_init(&packet, buffer);
 	char *command = NULL;
 	size_t len;
-	
+
 	while (1) {
 		ps_packet_open(&packet, PS_PACKET_READ);
 		ps_packet_getsize(&packet, &len);
-		
+
 		if (command == NULL)
 			command = (char *) malloc(len);
 		else
 			command = (char *) realloc(command, len);
-		
+
 		ps_packet_read(&packet, command, len);
 		ps_packet_close(&packet);
-		
+
 		if (command[0] == 'k') {
 			send_kill(buffer);
 			break;
 		}
-		
+
 		system(&command[1]);
 	}
-	
+
 	ps_packet_destroy(&packet);
-	
+
 	return NULL;
 }
 
@@ -111,18 +111,18 @@ void run_server(ps_buffer_t *buffer, int threads, sem_t *finished)
 	int i;
 
 	exec_threads = (pthread_t *) malloc(sizeof(pthread_t) * threads);
-	
+
 	pthread_attr_init(&tattr);
 	pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_JOINABLE);
-	
+
 	for (i = 0; i < threads; i++)
 		pthread_create(&exec_threads[i], &tattr, exec_thread, (void *) buffer);
-	
+
 	pthread_attr_destroy(&tattr);
-	
+
 	for (i = 0; i < threads; i++)
 		pthread_join(exec_threads[i], NULL);
-	
+
 	free(exec_threads);
 	ps_buffer_destroy(buffer);
 
@@ -137,11 +137,11 @@ int main(int argc, char *argv[])
 	ps_bufferattr_t battr;
 	char *command = NULL;
 	struct texec_shared_s *shared;
-	
+
 	threads = server = exec = kill = 0;
 	size = -1;
 	shmid = IPC_PRIVATE;
-	
+
 	while ((opt = getopt(argc, argv, "hst:b:c:ke:")) != -1) {
 		switch (opt) {
 		case 's':
@@ -168,35 +168,35 @@ int main(int argc, char *argv[])
 			goto usage;
 		}
 	}
-	
+
 	if (threads < 1)
 		threads = sysconf(_SC_NPROCESSORS_ONLN) * 2;
-		
+
 	if (size < 1024) /* something sane */
 		size = threads * 1024;
-	
+
 	shared = shm_get_shared(&shmid);
-	
+
 	ps_bufferattr_init(&battr);
 	ps_bufferattr_setflags(&battr, PS_BUFFER_PSHARED);
 	ps_bufferattr_setshmid(&battr, shared->buffer_shmid);
 	ps_bufferattr_setsize(&battr, size);
-	
+
 	if (ps_buffer_init(&buffer, &battr)) {
 		fprintf(stderr, "can't create buffer\n");
 		return EXIT_FAILURE;
 	}
-	
+
 	ps_bufferattr_destroy(&battr);
-	
+
 	if (server) {
 		printf("%d\n", shmid);
 		ps_buffer_getshmid(&buffer, &shared->buffer_shmid);
-		
+
 		fclose(stdout);
 		fclose(stdin);
 		fclose(stderr);
-	
+
 		if (fork() == 0) {
 			setsid();
 			run_server(&buffer, threads, &shared->finished);
@@ -205,16 +205,16 @@ int main(int argc, char *argv[])
 		send_command(&buffer, command);
 	else if (kill) {
 		send_kill(&buffer);
-		
+
 		sem_wait(&shared->finished);
 		sem_destroy(&shared->finished);
-		
+
 		shmdt(shared);
 		shmctl(shmid, IPC_RMID, 0);
 	}
 	else
 		goto usage;
-	
+
 	return EXIT_SUCCESS;
 
 usage:
@@ -226,6 +226,6 @@ usage:
 	printf("  -k               kill server after all commands have returned\n");
 	printf("  -e COMMAND       execute command\n");
 	printf("  -h               show help\n");
-	
+
 	return EXIT_FAILURE;
 }
