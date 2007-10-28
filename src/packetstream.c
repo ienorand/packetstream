@@ -147,8 +147,8 @@ struct ps_fake_dma_s {
 
 /**  \} */
 
-int ps_packet_check(ps_packet_t *packet);
-int ps_buffer_check(ps_buffer_t *buffer);
+__inline__ static int ps_packet_check(ps_packet_t *packet);
+__inline__ static int ps_buffer_check(ps_buffer_t *buffer);
 
 int ps_packet_openread(ps_packet_t *packet, ps_flags_t flags);
 int ps_packet_openwrite(ps_packet_t *packet, ps_flags_t flags);

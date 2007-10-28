@@ -4,6 +4,7 @@ CC = gcc
 
 CFLAGS = -g -Wall -ansi -D_XOPEN_SOURCE=500
 LDFLAGS = -Wall -ansi
+VISIBILITY = -fvisibility=hidden
 
 MLIBDIR = lib
 DESTDIR = 
@@ -32,7 +33,7 @@ $(BUILD)/libpacketstream.a: $(BUILD)/packetstream.o
 	ar crs $(BUILD)/libpacketstream.a $(BUILD)/packetstream.o
 
 $(BUILD)/packetstream.o: $(BUILD) $(SRC)/packetstream.c $(SRC)/packetstream.h
-	$(CC) $(CFLAGS) -fPIC -o $(BUILD)/packetstream.o -c $(SRC)/packetstream.c
+	$(CC) $(CFLAGS) $(VISIBILITY) -fPIC -o $(BUILD)/packetstream.o -c $(SRC)/packetstream.c
 
 $(BUILD)/packetstream.h: $(BUILD) $(SRC)/packetstream.h
 	cp $(SRC)/packetstream.h $(BUILD)/packetstream.h
