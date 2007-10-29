@@ -6,7 +6,7 @@
  */
 
 /* packetstream.h -- interface of the 'packetstream' thread-safe ring buffer
-  version 0.1.2, October 9th, 2007
+  version 0.1.3, October 29th, 2007
 
   Copyright (C) 2007 Pyry Haulos
 

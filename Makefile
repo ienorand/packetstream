@@ -13,7 +13,7 @@ SRC = src
 EXAMPLES = $(SRC)/examples
 
 VERSION=0
-RELEASE=$(VERSION).1.2
+RELEASE=$(VERSION).1.3
 
 all: $(BUILD)/libpacketstream.so.$(RELEASE) $(BUILD)/packetstream.h
 
