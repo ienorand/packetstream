@@ -2,11 +2,7 @@
  * \file src/packetstream.c
  * \brief thread-safe ring buffer
  * \author Pyry Haulos <pyry.haulos@gmail.com>
- * \date 2007
- */
-
-/* packetstream.c -- thread-safe ring buffer
- * Copyright (C) 2007 Pyry Haulos
+ * \date 2007-2008
  * For conditions of distribution and use, see copyright notice in packetstream.h
  */
 

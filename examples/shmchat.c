@@ -2,11 +2,7 @@
  * \file src/examples/shmchat.c
  * \brief example app which uses 'packetstream' to send data across processes
  * \author Pyry Haulos <pyry.haulos@gmail.com>
- * \date 2007
- */
-
-/* shmchat.c -- example app which uses 'packetstream' to send data across processes
- * Copyright (C) 2007 Pyry Haulos
+ * \date 2007-2008
  * For conditions of distribution and use, see copyright notice in packetstream.h
  */
 

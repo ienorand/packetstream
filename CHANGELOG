@@ -1,3 +1,6 @@
+0.1.4 (2008/03/09)
+   Use CMake build system.
+
 0.1.3 (2007/10/29)
    Support for -fvisibility=hidden
 

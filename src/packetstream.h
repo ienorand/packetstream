@@ -2,13 +2,13 @@
  * \file src/packetstream.h
  * \brief interface of the 'packetstream' thread-safe ring buffer
  * \author Pyry Haulos <pyry.haulos@gmail.com>
- * \date 2007
+ * \date 2007-2008
  */
 
 /* packetstream.h -- interface of the 'packetstream' thread-safe ring buffer
-  version 0.1.3, October 29th, 2007
+  version 0.1.4, March 9th, 2008
 
-  Copyright (C) 2007 Pyry Haulos
+  Copyright (C) 2007-2008 Pyry Haulos
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
