@@ -9,10 +9,14 @@ ENDIF (NOT CMAKE_BUILD_TYPE)
 
 SUBDIRS(src)
 
-OPTION(PACKETSTREAM_EXAMPLES
+OPTION(EXAMPLES
        "Build examples"
        OFF)
 
-IF (PACKETSTREAM_EXAMPLES)
+OPTION(MLIBDIR
+       "Standard library directory for current architecture"
+       "lib")
+
+IF (EXAMPLES)
   SUBDIRS(examples)
-ENDIF (PACKETSTREAM_EXAMPLES)
+ENDIF (EXAMPLES)
