@@ -13,10 +13,6 @@ OPTION(EXAMPLES
        "Build examples"
        OFF)
 
-OPTION(MLIBDIR
-       "Standard library directory for current architecture"
-       "lib")
-
 IF (EXAMPLES)
   SUBDIRS(examples)
 ENDIF (EXAMPLES)
