@@ -172,13 +172,13 @@ int ps_buffer_init(ps_buffer_t *buffer, ps_bufferattr_t *attr)
 	int shared = 0;
 	ps_flags_t flags = attr->flags;
 	int shmid = attr->shmid;
+	pthread_mutexattr_t mutexattr;
 
 	if (buffer == NULL)
 		return EINVAL;
 
 	memset(buffer, 0, sizeof(ps_buffer_t));
 
-	pthread_mutexattr_t mutexattr;
 	pthread_mutexattr_init(&mutexattr);
 
 #ifdef __PS_SHM
@@ -630,8 +630,8 @@ int ps_packet_getsize(ps_packet_t *packet, size_t *size)
 
 int ps_packet_read(ps_packet_t *packet, void *dest, size_t size)
 {
-	__PS_PACKET(packet)
 	size_t offs, rlen = size;
+	__PS_PACKET(packet)
 
 	if (packet->pos + size > header->size)
 		return EINVAL;
@@ -1040,44 +1040,45 @@ unsigned long ps_buffer_utime(ps_buffer_t *buffer)
 }
 
 
+void ps_stats_text_hbytes(size_t bytes, FILE *stream)
+{
+	if (bytes >= 1024 * 1024 * 1024)
+		fprintf(stream, "%.2f GiB\n", (float) bytes / (float) (1024 * 1024 * 1024));
+	else if (bytes >= 1024 * 1024)
+		fprintf(stream, "%.2f MiB\n", (float) bytes / (float) (1024 * 1024));
+	else if (bytes >= 1024)
+		fprintf(stream, "%.2f KiB\n", (float) bytes / 1024.0f);
+	else
+		fprintf(stream, "%d B\n", (int) bytes);
+}
+
+void ps_stats_text_hfloat(float val, FILE *stream)
+{
+	if (val >= 1000000000.0f)
+		fprintf(stream, "%.2f G\n", val / 1000000000.0f);
+	else if (val >= 1000000.0f)
+		fprintf(stream, "%.2f M\n", val / 1000000.0f);
+	else if (val >= 1000.0f)
+		fprintf(stream, "%.2f K\n", val / 1000.0f);
+	else
+		fprintf(stream, "%.2f\n", val);
+}
+
+void ps_stats_text_hnum(size_t num, FILE *stream)
+{
+	if (num >= 1000000000)
+		fprintf(stream, "%.2f G\n", (float) num / 1000000000.0f);
+	else if (num >= 1000000)
+		fprintf(stream, "%.2f M\n", (float) num / 1000000.0f);
+	else if (num >= 1000)
+		fprintf(stream, "%.2f K\n", (float) num / 1000.0f);
+	else
+		fprintf(stream, "%d\n", (int) num);
+}
+
+
 int ps_stats_text(ps_stats_t *stats, FILE *stream)
 {
-	void hbytes(size_t bytes, FILE *stream)
-	{
-		if (bytes >= 1024 * 1024 * 1024)
-			fprintf(stream, "%.2f GiB\n", (float) bytes / (float) (1024 * 1024 * 1024));
-		else if (bytes >= 1024 * 1024)
-			fprintf(stream, "%.2f MiB\n", (float) bytes / (float) (1024 * 1024));
-		else if (bytes >= 1024)
-			fprintf(stream, "%.2f KiB\n", (float) bytes / 1024.0f);
-		else
-			fprintf(stream, "%d B\n", (int) bytes);
-	}
-
-	void hfloat(float val, FILE *stream)
-	{
-		if (val >= 1000000000.0f)
-			fprintf(stream, "%.2f G\n", val / 1000000000.0f);
-		else if (val >= 1000000.0f)
-			fprintf(stream, "%.2f M\n", val / 1000000.0f);
-		else if (val >= 1000.0f)
-			fprintf(stream, "%.2f K\n", val / 1000.0f);
-		else
-			fprintf(stream, "%.2f\n", val);
-	}
-
-	void hnum(size_t num, FILE *stream)
-	{
-		if (num >= 1000000000)
-			fprintf(stream, "%.2f G\n", (float) num / 1000000000.0f);
-		else if (num >= 1000000)
-			fprintf(stream, "%.2f M\n", (float) num / 1000000.0f);
-		else if (num >= 1000)
-			fprintf(stream, "%.2f K\n", (float) num / 1000.0f);
-		else
-			fprintf(stream, "%d\n", (int) num);
-	}
-
 	float secs = ((float) stats->utime) / 1000000.0f;
 
 	/* fprintf(stream, "ps_stats_text()\n"); */
@@ -1086,22 +1087,30 @@ int ps_stats_text(ps_stats_t *stats, FILE *stream)
 	if ((stats->utime > 0) && (secs >= 0.5f)) {
 		fprintf(stream, " averages\n");
 		fprintf(stream, "  written\n");
-		fprintf(stream, "   packets   : "); hfloat((float) stats->written_packets / secs, stream);
-		fprintf(stream, "   bytes     : "); hbytes(stats->written_bytes / (size_t) (secs + 0.5f), stream);
+		fprintf(stream, "   packets   : ");
+		ps_stats_text_hfloat((float) stats->written_packets / secs, stream);
+		fprintf(stream, "   bytes     : ");
+		ps_stats_text_hbytes(stats->written_bytes / (size_t) (secs + 0.5f), stream);
 		fprintf(stream, "   %% waited  : %.2f %%\n", 100.0f * ((float) stats->write_wait_usec / (float) stats->utime));
 		fprintf(stream, "  read\n");
-		fprintf(stream, "   packets   : "); hfloat((float) stats->read_packets / secs, stream);
-		fprintf(stream, "   bytes     : "); hbytes(stats->read_bytes / (size_t) (secs + 0.5f), stream);
+		fprintf(stream, "   packets   : "); 
+		ps_stats_text_hfloat((float) stats->read_packets / secs, stream);
+		fprintf(stream, "   bytes     : "); 
+		ps_stats_text_hbytes(stats->read_bytes / (size_t) (secs + 0.5f), stream);
 		fprintf(stream, "   %% waited  : %.2f %%\n", 100.0f * ((float) stats->read_wait_usec / (float) stats->utime));
 	}
 
 	fprintf(stream, " totals\n");
 	fprintf(stream, "  written\n");
-	fprintf(stream, "   packets   : "); hnum(stats->written_packets, stream);
-	fprintf(stream, "   bytes     : "); hbytes(stats->written_bytes, stream);
+	fprintf(stream, "   packets   : ");
+	ps_stats_text_hnum(stats->written_packets, stream);
+	fprintf(stream, "   bytes     : ");
+	ps_stats_text_hbytes(stats->written_bytes, stream);
 	fprintf(stream, "  read\n");
-	fprintf(stream, "   packets   : "); hnum(stats->read_packets, stream);
-	fprintf(stream, "   bytes     : "); hbytes(stats->read_bytes, stream);
+	fprintf(stream, "   packets   : ");
+	ps_stats_text_hnum(stats->read_packets, stream);
+	fprintf(stream, "   bytes     : ");
+	ps_stats_text_hbytes(stats->read_bytes, stream);
 
 	return 0;
 }
