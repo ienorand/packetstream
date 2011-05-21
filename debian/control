@@ -1,0 +1,45 @@
+Source: libpacketstream0
+Priority: extra
+Maintainer: Arand Nash <ienorand@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), cmake
+Standards-Version: 3.9.2
+Section: libs
+Homepage: https://github.com/nullkey/packetstream
+#Vcs-Git: git://git.debian.org/collab-maint/libpacketstream0.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/libpacketstream0.git;a=summary
+
+Package: libpacketstream0-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends}, libpacketstream0 (= ${binary:Version})
+Description: brief interface of the 'packetstream' thread-safe ring buffer
+ Packetstream is basically a solution to the Producer-Consumer problem with a
+ fixed size ring buffer and variable item (=packet) size. This implementation
+ follows classic solution using semaphores with a few exceptions:
+ 1. Since the maximum amount of items the buffer can hold is not known,
+ semaphore "empty" (=read_packets) is only decreased when producer needs to
+ remove a consumed item to have space for a new one.
+ 2. Multiple producers 1..n can simultaneously write to the buffer providing
+ that there is enough free space and all producers 1..n-1 have set a size for
+ their items.
+ 3. Multiple consumers 1..n can simultaneously read from the buffer if there is
+ 1..n ready items.
+ .
+ This package contains the development headers for packetstream
+
+Package: libpacketstream0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: brief interface of the 'packetstream' thread-safe ring buffer
+ Packetstream is basically a solution to the Producer-Consumer problem with a
+ fixed size ring buffer and variable item (=packet) size. This implementation
+ follows classic solution using semaphores with a few exceptions:
+ 1. Since the maximum amount of items the buffer can hold is not known,
+ semaphore "empty" (=read_packets) is only decreased when producer needs to
+ remove a consumed item to have space for a new one.
+ 2. Multiple producers 1..n can simultaneously write to the buffer providing
+ that there is enough free space and all producers 1..n-1 have set a size for
+ their items.
+ 3. Multiple consumers 1..n can simultaneously read from the buffer if there is
+ 1..n ready items.
