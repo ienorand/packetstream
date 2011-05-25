@@ -1,5 +1,5 @@
 Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=174
-Upstream-Name: glc
+Upstream-Name: packetstream
 Source: https://github.com/nullkey/packetstream
 
 Files: *
