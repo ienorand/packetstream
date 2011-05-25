@@ -1,5 +1,5 @@
-libpacketstream0 (0.1.4-1) unstable; urgency=low
+packetstream (0.1.4-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)
 
- -- Arand Nash <ienorand@gmail.com>  Sat, 21 May 2011 13:49:56 +0100
+ -- Arand Nash <ienorand@gmail.com>  Wed, 25 May 2011 14:34:36 +0100
