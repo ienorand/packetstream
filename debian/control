@@ -1,7 +1,7 @@
 Source: packetstream
 Priority: extra
 Maintainer: Arand Nash <ienorand@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~), cmake
+Build-Depends: debhelper (>= 8), cmake
 Standards-Version: 3.9.2
 Section: libs
 Homepage: https://github.com/nullkey/packetstream
