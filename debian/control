@@ -1,7 +1,7 @@
 Source: packetstream
 Priority: extra
 Maintainer: Arand Nash <ienorand@gmail.com>
-Build-Depends: debhelper (>= 8), cmake
+Build-Depends: cmake, debhelper (>= 8)
 Standards-Version: 3.9.2
 Section: libs
 Homepage: https://github.com/nullkey/packetstream
@@ -11,7 +11,7 @@ Homepage: https://github.com/nullkey/packetstream
 Package: libpacketstream-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libpacketstream0 (= ${binary:Version})
+Depends: libpacketstream0 (= ${binary:Version}), ${misc:Depends}
 Description: interface of the 'packetstream' thread-safe ring buffer
  Packetstream is basically a solution to the Producer-Consumer problem with a
  fixed size ring buffer and variable item (=packet) size. This implementation
@@ -30,7 +30,7 @@ Description: interface of the 'packetstream' thread-safe ring buffer
 Package: libpacketstream0
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: interface of the 'packetstream' thread-safe ring buffer
  Packetstream is basically a solution to the Producer-Consumer problem with a
  fixed size ring buffer and variable item (=packet) size. This implementation
