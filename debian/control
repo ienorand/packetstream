@@ -1,12 +1,10 @@
 Source: packetstream
 Priority: extra
-Maintainer: Arand Nash <ienorand@gmail.com>
+Maintainer: Martin Erik Werner <martinerikwerner@gmail.com>
 Build-Depends: cmake, debhelper (>= 8)
 Standards-Version: 3.9.2
 Section: libs
 Homepage: https://github.com/nullkey/packetstream
-#Vcs-Git: git://git.debian.org/collab-maint/packetstream.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/packetstream.git;a=summary
 
 Package: libpacketstream-dev
 Section: libdevel

@@ -1,5 +1,5 @@
-packetstream (0.1.4-1) unstable; urgency=low
+packetstream (0.1.4-1~ppa1) precise; urgency=low
 
-  * Initial release (Closes: #nnnn)
+  * Initial release to PPA
 
- -- Arand Nash <ienorand@gmail.com>  Wed, 25 May 2011 14:34:36 +0100
+ -- Martin Erik Werner <martinerikwerner@gmail.com>  Mon, 16 Jan 2012 15:52:26 +0100
