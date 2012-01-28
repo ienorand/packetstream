@@ -1,3 +1,9 @@
+packetstream (0.1.4-1~ppa1~oneiric1) oneiric; urgency=low
+
+  * PPA build for oneiric
+
+ -- Martin Erik Werner <martinerikwerner@gmail.com>  Sat, 28 Jan 2012 23:47:56 +0100
+
 packetstream (0.1.4-1~ppa1) precise; urgency=low
 
   * Initial release to PPA
